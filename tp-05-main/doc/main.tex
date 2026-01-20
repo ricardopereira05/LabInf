@@ -1,0 +1,638 @@
+<<<<<<< HEAD
+\documentclass[a4paper,12pt]{report}
+
+% Pacotes necessários
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{graphicx}
+\geometry{a4paper, margin=2.5cm}
+
+% Configuração para listagens de código
+\lstset{
+    language=C,
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    stepnumber=1,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+}
+
+% Início do documento
+\begin{document}
+
+% Capa
+\begin{titlepage}
+    \centering
+    {\Large IPCA}\\[1.5cm]
+    {\Large Relatório de Projeto de PI e Laboratórios de Informárica}\\[2cm]
+    {\Huge \textbf{Relatório}}\\[2cm]
+    {\large Autores: David Faria 31517, João Pereira 31505, Rodrigo Pinheiro 31502 } {\large Docente: Oscár Ribeiro}\\[1.5cm]
+    {\large \today}\\
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% Introdução
+\chapter{Introdução}
+O presente relatório foi elaborado no âmbito da Unidade Curricular de Laboratórios de Informática do curso de Licenciatura em Engenharia de Sistemas Informáticos, durante o ano letivo de 2024/2025. Este trabalho tem como objetivo consolidar competências práticas relacionadas com o desenvolvimento colaborativo de projetos utilizando a linguagem de programação C, adotando o paradigma de programação imperativa.
+Ao longo do desenvolvimento do projeto, são abordadas boas práticas de programação, incluindo a modularização de código, o uso de ferramentas de automação como o Makefile e a documentação utilizando ferramentas como o Doxygen. Adicionalmente, promove-se a utilização de sistemas de gestão de versões, com ênfase na colaboração em grupo por meio da plataforma GitHub.
+Outro aspeto central do trabalho é a utilização avançada da linha de comandos em ambientes Linux, promovendo uma interação eficiente com o sistema operativo para tarefas de desenvolvimento, compilação e execução do programa.
+Este relatório documenta todas as etapas do trabalho como, por exemplo: a definição do problema e sua análise, até a implementação, resultados obtidos e considerações finais. 
+
+\begin{itemize}
+    \item Definição do problema e sua análise;
+    \item Implementação de funções;
+    \item Resultados obtidos;
+    \item Considerações finais;
+\end{itemize}
+
+% Capítulo de Desenvolvimento
+\chapter{Desenvolvimento}
+
+\section{Conceito do programa}
+O programa desenvolvido apoia a gestão do Espaço Social de uma Instituição Pública, responsável por servir refeições aos seus funcionários. Usando a linguagem C, o sistema permite gerir dados dos funcionários, ementas semanais e escolhas de refeições, garantindo assim a sua eficiência.
+
+\textbf{Principais funcionalidades:}
+
+\begin{itemize}
+    \item Carregamento de Dados: Leitura de ficheiros com informações dos funcionários, ementas e escolhas de refeições.
+    \item Gestão e Visualização: Listagem de refeições diárias, relatórios semanais para Recursos Humanos, e análise de calorias consumidas.
+    \item Análise e Relatórios: Cálculo de médias de calorias e geração de tabelas detalhadas por funcionário.
+    \item Flexibilidade: Suporte a ficheiros de texto e binários, com interface de linha de comandos para personalização.
+\end{itemize}
+O código é documentado com Doxygen, com um Makefile para compilação automatizada, e promove boas práticas de programação e trabalho em equipa.
+
+
+\begin{description}
+    \item Funcoes .h: Declaram funções e estruturas de dados, o que garante o armazenamento dos dados necessários.
+    \item Funcoes .c: Implementam e desenvolve as funções declaradas anteriormente.  
+    \item Makefile: Automatiza o processo de compilação, especificando dependências e otimizando a geração do executável
+    \item Main.c: Coordena a execução do programa - processa argumentos da linha de comandos, chama funções e interage com o utilizador.
+    \item ementas.txt: Contém as ementas semanais, organizadas por dia, com pratos de peixe, carne, dieta e vegetariano, incluindo as calorias de cada prato.
+Exemplo:
+Segunda;18.11.2024;peixe grelhado;180;bife de vaca;330;frango grelhado;150;lasanha de vegetais;200;
+    \item escolhas.txt: Registra as escolhas dos funcionários, indicando o dia da semana, número de funcionário e o tipo de prato escolhido. Exemplo: Segunda;1;Peixe
+    \item funcionarios.txt: Armazena os dados dos funcionários, como número, nome, NIF e telefone. Exemplo: 1;Paulo Silva;179204181;963358792
+\end{description}
+
+\subsection{Exemplos de funções implementadas}
+Segue abaixo exemplos de funções implementadas no código:
+
+\begin{lstlisting}[caption={carregarFuncionarios}, label={lst:main}]
+/**
+@brief  Função para carregar os dados dos funcionários a partir de um ficheiro
+@param nomeFicheiro   Nome do ficheiro
+@param funcionario  Array de funcionários
+@return int  Retorna o total de funcionários carregados*/
+int carregarFuncionarios(char* nomeFicheiro, Funcionario funcionario[]) {
+    FILE *ficheiro = fopen(nomeFicheiro, "r");
+    if (ficheiro == NULL) {
+        printf("Erro ao abrir o ficheiro: %s\n", nomeFicheiro);
+        return 0;
+    }
+
+    int totalFuncionarios = 0;
+    while (totalFuncionarios < MAX_FUNCIONARIOS) {
+
+        // Lê os dados do ficheiro e atribui aos campos da estrutura
+        if (fscanf(ficheiro, "%d;%99[^;];%14[^;];%14[^\n]\n",
+                   &funcionario[totalFuncionarios].numero,
+                   funcionario[totalFuncionarios].nome,
+                   funcionario[totalFuncionarios].nif,
+                   funcionario[totalFuncionarios].telefone) == 4) {
+            totalFuncionarios++;
+        } else {
+            break; // Encerra a leitura caso ocorra erro ou final do arquivo
+        }
+    }
+
+    fclose(ficheiro);
+
+    printf("Carregamento dos dados dos funcionários foi realizado com sucesso!\n");
+    printf("Total de funcionários carregados: %d\n", totalFuncionarios);
+    return totalFuncionarios;
+    } 
+\end{lstlisting}
+
+\begin{lstlisting}[caption={carregarEmenta}, label={lst:main}]
+/**
+ 
+@brief  Função para carregar a ementa semanal a partir de um ficheiro
+@param nomeficheiro  Nome do ficheiro
+@param ementas  Array de ementas
+@return int   ]Retorna o total de ementas carregadas*/
+int carregarEmenta(char* nomeficheiro, Ementa ementas[]) {
+    FILE* ficheiro = fopen(nomeficheiro, "r");
+    if (ficheiro == NULL) {
+        printf("Erro ao abrir ficheiro de ementa\n");
+        return 0;
+    }
+
+    int totalEmentas = 0; 
+    while (fscanf(ficheiro, "%9[^;];%11[^;];%99[^;];%d;%99[^;];%d;%99[^;];%d;%99[^;];%d\n", 
+                    ementas[totalEmentas].diaSemana,
+                    ementas[totalEmentas].data,
+                    ementas[totalEmentas].pratoPeixe, &ementas[totalEmentas].caloriasPeixe,
+                    ementas[totalEmentas].pratoCarne, &ementas[totalEmentas].caloriasCarne, 
+                    ementas[totalEmentas].pratoDieta, &ementas[totalEmentas].caloriasDieta, 
+                    ementas[totalEmentas].pratoVegetariano, &ementas[totalEmentas].caloriasVegetariano) == 10) {
+                totalEmentas++;
+        if (totalEmentas >= 5) {
+            break;
+        }
+    }
+
+    fclose(ficheiro);
+    printf("Carregamento de ementa semanal foi realizado com sucesso!\n");
+    return totalEmentas; 
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[caption={carregarEscolhas}, label={lst:main}]
+/**
+@brief  Função para carregar as escolhas dos utentes a partir de um ficheiro
+@param nomeFicheiro  Nome do ficheiro
+@param escolhas  Array de escolhas
+@return int  Retorna o total de escolhas carregadas*/
+int carregarEscolhas(char* nomeFicheiro, Escolha escolhas[]) {
+    FILE* ficheiro = fopen(nomeFicheiro, "r");
+    if (ficheiro == NULL) {
+        printf("Erro ao abrir o ficheiro!");
+        return 0; 
+    }
+
+    int totalEscolhas = 0;
+    while (fscanf(ficheiro, "%19[^;];%d;%19[^\n]\n", 
+                  escolhas[totalEscolhas].diaSemana, 
+                  &escolhas[totalEscolhas].numeroFuncionario, 
+                  escolhas[totalEscolhas].tipoPrato) == 3) {
+        totalEscolhas++;
+        if (totalEscolhas >= MAX_ESCOLHAS) { // Limita ao número máximo de escolhas
+            printf("Limite máximo de refeições atingido %d \n", MAX_ESCOLHAS);
+            break;
+        }
+    }
+    fclose(ficheiro);
+
+    printf("Carregamento das escolhas realizado com sucesso!\n");
+    return totalEscolhas;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={listarRefeicoesDia}, label={lst:main}]
+/**
+@brief  Função para listar as refeições de um dia específico
+@param escolhas  Array de escolhas
+@param totalEscolhas  Total de escolhas
+@param funcionarios  Array de funcionários
+@param totalFuncionarios  Total de funcionários
+@param diaSemana  Dia da semana*/
+void listarRefeicoesDia(Escolha* escolhas, int totalEscolhas, Funcionario* funcionarios, int totalFuncionarios, const char* diaSemana) {
+    printf("Refeições para o dia %s:\n", diaSemana);
+    printf("----------------------------------------------------\n");
+    printf("| Nº Funcionário | Nome            | Prato         |\n");
+    printf("----------------------------------------------------\n");
+
+    int encontrado = 0; // Flag para indicar se alguma refeição foi encontrada
+
+    for (int i = 0; i < totalEscolhas; i++) {
+        if (strcmp(escolhas[i].diaSemana, diaSemana) == 0) {
+            // Encontra o nome do funcionário correspondente
+            for (int j = 0; j < totalFuncionarios; j++) {
+                if (funcionarios[j].numero == escolhas[i].numeroFuncionario) {
+                    printf(" |%15d|%-15s|%-15s| \n",
+                           funcionarios[j].numero,
+                           funcionarios[j].nome,
+                           escolhas[i].tipoPrato);
+                    encontrado = 1; // Marca que encontramos pelo menos uma refeição
+                    break; // Para de procurar o funcionário correspondente
+                }
+            }
+        }
+    }
+
+    if (!encontrado) {
+        printf("Nenhuma refeição foi registrada para o dia de %s.\n", diaSemana);
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={listarUtentesOrdemDecrescente}, label={lst:main}]
+/**
+@brief Função para listar os utentes em ordem decrescente de número de funcionário
+@param escolhas Array de escolhas
+@param totalEscolhas Total de Escolhas Possivel
+@param funcionarios  Array de funcionários
+@param totalFuncionarios  Total de Funcionários*/
+void listarUtentesOrdemDecrescente(Escolha* escolhas, int totalEscolhas, Funcionario* funcionarios, int totalFuncionarios) {
+    // Arrays para armazenar refeições e despesas por funcionário
+    int refeicoes[totalFuncionarios];
+    float despesas[totalFuncionarios];
+
+    // Inicializa os contadores
+    for (int i = 0; i < totalFuncionarios; i++) {
+        refeicoes[i] = 0;
+        despesas[i] = 0.0f;
+    }
+
+    // Calcula o número de refeições e a despesa total para cada funcionário
+    for (int i = 0; i < totalEscolhas; i++) {
+        for (int j = 0; j < totalFuncionarios; j++) {
+            if (escolhas[i].numeroFuncionario == funcionarios[j].numero) {
+                refeicoes[j]++;
+                despesas[j] += 6.00;
+            }
+        }
+    }
+
+    // Ordena os funcionários em ordem decrescente de número de funcionário
+    for (int i = 0; i < totalFuncionarios - 1; i++) {
+        for (int j = i + 1; j < totalFuncionarios; j++) {
+            if (funcionarios[i].numero< funcionarios[j].numero) {
+                // Troca os funcionários
+                Funcionario tempFuncionario = funcionarios[i];
+                funcionarios[i] = funcionarios[j];
+                funcionarios[j] = tempFuncionario;
+
+                // Troca os dados correspondentes
+                int tempRefeicoes = refeicoes[i];
+                refeicoes[i] = refeicoes[j];
+                refeicoes[j] = tempRefeicoes;
+
+                float tempDespesas = despesas[i];
+                despesas[i] = despesas[j];
+                despesas[j] = tempDespesas;
+            }
+        }
+    }
+
+    // Exibe os dados ordenados
+    printf("Relatório de Utentes - Recursos Humanos\n");
+    printf("-------------------------------------------------------------\n");
+    printf("| Nº Funcionário | Nome            | Refeições | Total (€) |\n");
+    printf("-------------------------------------------------------------\n");
+    for (int i = 0; i < totalFuncionarios; i++) {
+        printf("| %-15d | %-15s | %-10d | %-10.2f |\n",
+               funcionarios[i].numero,
+               funcionarios[i].nome,
+               refeicoes[i],
+               despesas[i]);
+    }
+}
+
+\end{lstlisting}
+
+\begin{lstlisting}[caption={listarRefeicoesUtente}, label={lst:main}]
+/**
+@brief  Função para listar as refeições e calorias de um utente durante um período
+@param escolhas  Array de escolhas
+@param totalEscolhas  Total de escolhas
+@param ementas  Array de ementas
+@param totalFuncionarios  Total de funcionários
+@param totalEmentas  Total de ementas*/
+void listarRefeicoesUtente(Escolha* escolhas, int totalEscolhas, Ementa* ementas, int totalFuncionarios, int totalEmentas) {
+    int numeroFuncionario;
+    printf("Escreva o número do funcionário: ");
+    scanf("%d", &numeroFuncionario);
+
+    // Verifica se o número do funcionário é válido antes de pedir os dias
+    if (numeroFuncionario <= 0  numeroFuncionario > totalFuncionarios) {
+        printf("Erro: Número de funcionário %d não existe.\n", numeroFuncionario);
+        return;  // Sai da função e retorna ao menu
+    }
+
+    char DiaInicio[20], DiaFim[20];
+    printf("Escreva o dia de início (ex: Segunda): ");
+    scanf("%s", DiaInicio);
+    printf("Escreva o dia de fim (ex: Sexta): ");
+    scanf("%s", DiaFim);
+
+    int numeroInicio = diaSemanaParaNumero(DiaInicio);
+    int numeroFim = diaSemanaParaNumero(DiaFim);
+
+
+    if (numeroInicio == -1  numeroFim == -1) {
+        printf("Erro: Dia de início ou fim inválido.\n");
+        return;
+    }
+
+    printf("Refeições e calorias do funcionário %d durante o período de %s a %s:\n", numeroFuncionario, DiaInicio, DiaFim);
+    printf("---------------------------------------------------------\n");
+    printf("|  Dia da Semana  |   Tipo de Prato    |   Calorias   |\n");
+    printf("---------------------------------------------------------\n");
+
+    int numeroRefeicoes = 0;
+    int totalCalorias = 0;
+    // Passa pelas escolhas e buscar correspondências na ementa
+    for (int i = 0; i < totalEscolhas; i++) {
+        if (escolhas[i].numeroFuncionario == numeroFuncionario) {
+            for (int j = 0; j < totalEmentas; j++) {
+                if (strcmp(escolhas[i].diaSemana, ementas[j].diaSemana) == 0) {
+                    int indiceAtual = diaSemanaParaNumero(ementas[j].diaSemana);
+
+                    if (estaNoIntervalo(indiceAtual, numeroInicio, numeroFim)) {
+                        // Determinar as calorias do prato específico
+                        int calorias = 0;
+
+                        if (strcmp(escolhas[i].tipoPrato, "Peixe") == 0) {
+                            calorias = ementas[j].caloriasPeixe;
+                        } else if (strcmp(escolhas[i].tipoPrato, "Carne") == 0) {
+                            calorias = ementas[j].caloriasCarne;
+                        } else if (strcmp(escolhas[i].tipoPrato, "Dieta") == 0) {
+                            calorias = ementas[j].caloriasDieta;
+                        } else if (strcmp(escolhas[i].tipoPrato, "Vegetariano") == 0) {
+                            calorias = ementas[j].caloriasVegetariano;
+                        }
+
+                        // Atualizar valores e exibir o prato específico
+                        totalCalorias += calorias; // Acumular calorias
+                        printf("| %16s | %15s | %5d |\n", ementas[j].diaSemana, escolhas[i].tipoPrato, calorias);
+                        numeroRefeicoes++;
+                    }
+                }
+            }
+        }
+    }
+
+    printf("---------------------------------------------------------\n");
+    if (numeroRefeicoes > 0) {
+        printf("Total de refeições: %d\n", numeroRefeicoes);
+        printf("Total de calorias consumidas no período: %d\n", totalCalorias);
+    } else {
+        printf("Nenhuma refeição registrada para o funcionário %d durante o período de %s a %s.\n", numeroFuncionario, DiaInicio, DiaFim);
+    }
+}
+\end{lstlisting}
+\begin{lstlisting}[caption={calcularMediaCaloriasEspaco}, label={lst:main}]
+/**
+@brief  Função para calcular a média de calorias consumidas no período
+@param ementas  Array de ementas
+@param totalEmentas  Total de ementas
+@param escolhas  Array de escolhas
+@param totalEscolhas  Total de escolhas
+@param diainicio  Dia de início
+@param diafim  Dia de fim*/
+// Função para calcular a média de calorias consumidas no período
+void calcularMediaCaloriasEspaco(Ementa* ementas, int totalEmentas, Escolha* escolhas, int totalEscolhas, char* diainicio, char* diafim) {
+    // Converte os dias de início e fim em números
+    int numeroDiaInicio = diaSemanaParaNumero(diainicio);
+    int numeroDiaFim = diaSemanaParaNumero(diafim);
+
+    if (numeroDiaInicio == -1 || numeroDiaFim == -1) {
+        printf("Erro: Dia de início ou fim inválido.\n");
+        return;
+    }
+    // Inicializa as variáveis para somar as calorias por dia
+    int caloriasDia[5] = {0};  // 0: Segunda, 1: Terça, 2: Quarta, 3: Quinta, 4: Sexta
+    int numeroRefeicoesPorDia[5] = {0};
+    int CaloriasPrato = 0;
+
+    // Percorre todas as escolhas de refeição
+    for (int i = 0; i < totalEscolhas; i++) {
+        // Obtém o número do dia da escolha
+        int numeroDiaEscolha = diaSemanaParaNumero(escolhas[i].diaSemana);
+
+        // Verifica se o dia da escolha está dentro do intervalo de dias
+        if (numeroDiaEscolha >= numeroDiaInicio && numeroDiaEscolha <= numeroDiaFim) {
+            // Percorre as ementas para verificar a correspondência dos pratos
+            for (int y = 0; y < totalEmentas; y++) {
+                if (numeroDiaEscolha == diaSemanaParaNumero(ementas[y].diaSemana)) {
+                    // Verifica o tipo de prato e calcula as calorias
+                    if (strcmp(escolhas[i].tipoPrato, "Peixe") == 0) {
+                        CaloriasPrato = ementas[y].caloriasPeixe;
+                    } else if (strcmp(escolhas[i].tipoPrato, "Carne") == 0) {
+                        CaloriasPrato = ementas[y].caloriasCarne;
+                    } else if (strcmp(escolhas[i].tipoPrato, "Dieta") == 0) {
+                        CaloriasPrato = ementas[y].caloriasDieta;
+                    } else if (strcmp(escolhas[i].tipoPrato, "Vegetariano") == 0) {
+                        CaloriasPrato = ementas[y].caloriasVegetariano;
+                    }
+
+                    // Adiciona as calorias do prato escolhido ao total de calorias do dia correspondente
+                    caloriasDia[numeroDiaEscolha] += CaloriasPrato;
+                    numeroRefeicoesPorDia[numeroDiaEscolha]++;
+                    break; // Interrompe o loop de ementas, pois encontramos o prato para o dia
+                }
+            }
+        }
+    }
+    / Exibe as médias de calorias consumidas por refeição para cada dia da semana
+    printf("Média de calorias consumidas por refeição de cada dia da semana no período de %s a %s:\n", diainicio, diafim);
+    printf("-------------------------------------------------------------\n");
+
+    // Array com os dias da semana
+    const char* diasSemana[] = {"Segunda", "Terça", "Quarta", "Quinta", "Sexta"};
+
+    for (int k = 0; k < 5; k++) {
+        if (numeroRefeicoesPorDia[k] > 0) {
+            float media = (float)caloriasDia[k] / numeroRefeicoesPorDia[k];
+            printf("%s:  %d refeições, média: %.2f calorias por refeição.\n",
+                diasSemana[k], numeroRefeicoesPorDia[k], media);
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={gerarTabelaEmentaUtente}, label={lst:main}]
+/**
+@brief  Função para gerar uma tabela de ementa para um utente
+@param escolhas  Array de escolhas
+@param totalEscolhas  Total de escolhas
+@param ementas  Array de ementas
+@param totalEmentas  Total de ementas
+@param numeroFuncionario  Número do funcionário*/
+void gerarTabelaEmentaUtente(Escolha* escolhas, int totalEscolhas, Ementa* ementas, int totalEmentas, int numeroFuncionario) {
+    printf("| Dia Semana | Prato Escolhido | Calorias |\n");
+    printf("==============================================\n");
+    // Percorre todos os dias da semana para verificar se o funcionário fez escolha
+    for (int i = 0; i < totalEmentas; i++) {
+        char* refeicaoEscolhida = 0;
+        int calorias = 0;
+
+        // Verifica se o funcionário fez uma escolha para aquele dia
+        for (int j = 0; j < totalEscolhas; j++) {
+            if (escolhas[j].numeroFuncionario == numeroFuncionario && 
+                strcmp(escolhas[j].diaSemana, ementas[i].diaSemana) == 0) {
+
+
+                // Atribui as calorias conforme o prato escolhido
+                if (strcmp(escolhas[j].tipoPrato, "Peixe") == 0) {
+                    calorias = ementas[i].caloriasPeixe;
+                } else if (strcmp(escolhas[j].tipoPrato, "Carne") == 0) {
+                    calorias = ementas[i].caloriasCarne;
+                } else if (strcmp(escolhas[j].tipoPrato, "Dieta") == 0) {
+                    calorias = ementas[i].caloriasDieta;
+                } else if (strcmp(escolhas[j].tipoPrato, "Vegetariano") == 0) {
+                    calorias = ementas[i].caloriasVegetariano;
+                }
+
+                // Imprime os dados na tabela
+                printf("| %15s | %15s | %-5d |\n", 
+                       ementas[i].diaSemana, escolhas[j].tipoPrato , calorias);
+                break;
+            }
+        }
+    }
+}
+\end{lstlisting}
+% Capítulo de Resultados
+\chapter{Resultados}
+A funcionalidade de mostrar o menu foi implementada corretamente, conforme esperado. Ao executar o programa, o menu é exibido de forma clara e interativa, permitindo ao utilizador selecionar diversas opções de acordo com o que é solicitado no enunciado do problema. As funções presentes no menu contemplam todas as funcionalidades exigidas pelo enunciado, incluindo a manipulação e processamento de dados, bem como a interação com o sistema de forma eficiente.
+
+As opções do menu foram testadas com entradas válidas e inválidas, e o sistema comportou-se corretamente em todas as situações. O menu também apresenta mensagens informativas e de erro apropriadas, o que garante uma experiência para o utilizador intuitiva.
+
+A imagem de prova que o menu é exibido corretamente encontra-se abaixo:
+
+\includegraphics{Resultado_menu.jpg}
+
+Após testar todas as operações presentes no menu (1-9) os resultados apresentam-se na tabela abaixo:
+\begin{table}[H]
+    \centering
+    \caption{Resultados obtidos nos testes.}
+    \label{tab:resultados_exemplo}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        Teste & Resultado Esperado & Resultado Obtido \\ \hline
+        Teste 1 & Sucesso & Sucesso \\ \hline
+        Teste 2 & Sucesso & Sucesso \\ \hline
+        Teste 3 & Sucesso & Sucesso \\ \hline
+        Teste 4 & Sucesso & Sucesso \\ \hline
+        Teste 5 & Sucesso & Sucesso \\ \hline
+        Teste 6 & Sucesso & Sucesso \\ \hline
+        Teste 7 & Sucesso & Sucesso \\ \hline
+        Teste 8 & Sucesso & Sucesso \\ \hline
+        Teste 9 & Sucesso & Sucesso \\ \hline
+    \end{tabular}
+\end{table}
+
+% Conclusão
+\chapter{Conclusão}
+O desenvolvimento deste trabalho permitiu consolidar competências em programação imperativa, gestão de dados e boas práticas de desenvolvimento de trabalho de grupo. A solução proposta responde de forma eficiente às necessidades de gestão do Espaço Social, o que permite o processamento de dados de funcionários, ementas e escolhas, e gerar relatórios úteis para a administração.
+A estrutura do programa, com separação de responsabilidades em diferentes ficheiros e funções, facilita a manutenção e escalabilidade da aplicação. A utilização de técnicas como leitura e validação de ficheiros, organização de dados e cálculo de métricas reforçou a compreensão dos conceitos aprendidos ao longo da unidade curricular.
+Por fim, o uso de ferramentas como Makefile, Git e Doxygen assegurou um desenvolvimento estruturado e documentado, alinhado às boas práticas de engenharia de software. Este trabalho destacou a importância da colaboração em equipa, da organização no desenvolvimento e da clareza na documentação para garantir o sucesso de projetos de programação.
+
+\end{document}
+=======
+\documentclass[a4paper,12pt]{report}
+
+% Pacotes necessários
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{tocbibind}
+\usepackage{geometry}
+\geometry{a4paper, margin=2.5cm}
+
+% Configuração para listagens de código
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    numbers=left,
+    stepnumber=1,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+}
+
+% Início do documento
+\begin{document}
+
+% Capa
+\begin{titlepage}
+    \centering
+    {\Large Universidade Exemplo}\\[1.5cm]
+    {\Large Relatório de Projeto}\\[2cm]
+    {\Huge \textbf{Título do Trabalho}}\\[2cm]
+    {\large Autores: Nome do Autor 1, Nome do Autor 2}\\[0.5cm]
+    {\large Docente: Nome do Docente}\\[1.5cm]
+    {\large \today}\\
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% Introdução
+\chapter{Introdução}
+A introdução deve apresentar o contexto do trabalho, os objetivos principais e uma visão geral da estrutura do documento. Por exemplo, neste relatório serão discutidos os seguintes tópicos:
+
+\begin{itemize}
+    \item Motivação para o desenvolvimento do projeto.
+    \item Problemas abordados.
+    \item Soluções propostas.
+\end{itemize}
+
+% Capítulo de Desenvolvimento
+\chapter{Desenvolvimento}
+
+\section{Descrição do Sistema}
+Nesta secção, será apresentado o conceito geral do sistema, incluindo:
+
+\begin{description}
+    \item[Arquitetura:] Descrição geral da arquitetura do programa, com destaque para os principais componentes.
+    \item[Funcionalidades:] Resumo das funcionalidades implementadas.
+\end{description}
+
+\subsection{Detalhes de Implementação}
+Segue abaixo um exemplo de código:
+
+\begin{lstlisting}[caption={Função principal do programa}, label={lst:main}]
+def main():
+    print("Este é um exemplo de código.")
+    # Mais detalhes de implementação aqui
+\end{lstlisting}
+
+% Capítulo de Resultados
+\chapter{Resultados}
+Nesta secção, apresentamos os resultados obtidos com a aplicação do sistema, organizados da seguinte forma:
+
+\begin{enumerate}
+    \item Testes realizados.
+    \item Métricas de avaliação.
+    \item Comparação com soluções existentes.
+\end{enumerate}
+
+Os resultados são apresentados na tabela abaixo:
+
+\begin{table}[H]
+    \centering
+    \caption{Resultados obtidos nos testes.}
+    \label{tab:resultados_exemplo}
+        \begin{tabular}{|c|c|c|}
+    \hline
+        Teste & Resultado Esperado & Resultado Obtido \\ \hline
+        Teste 1 & Sucesso & Sucesso \\ \hline
+        Teste 2 & Sucesso & Falha \\ \hline
+        \end{tabular}
+    \end{table}
+
+
+% Conclusão
+\chapter{Conclusão}
+A conclusão deve sumarizar os resultados alcançados, destacar as principais contribuições do trabalho e apresentar sugestões para trabalhos futuros.
+
+% Referências
+\bibliographystyle{plain}
+\bibliography{bibliografia}
+
+\end{document}
+>>>>>>> 9230929953353090db214b8495156293b68fbc40

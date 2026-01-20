@@ -1,0 +1,10 @@
+Segunda;1;Peixe
+Segunda;3;Carne
+Segunda;2;Dieta
+Terça;1;Vegetariano
+Terça;3;Peixe
+Quarta;2;Carne
+Quinta;1;Dieta
+Quinta;3;Vegetariano
+Sexta;2;Peixe
+Sexta;1;Carne

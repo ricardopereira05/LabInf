@@ -1,0 +1,6 @@
+Segunda;18.11.2024;peixe grelhado com arroz de legumes;180;bife de vaca grelhado com arroz;330;frango grelhado com salada mista;150;lasanha de vegetais;200
+Terça;19.11.2024;bacalhau à Brás;220;costeletas de porco com batata frita;350;peito de peru com arroz integral e brócolos;160;arroz de cogumelos;180
+Quarta;20.11.2024;filetes de pescada com batata a murro;210;frango assado com legumes;280;salada de atum com alface, tomate, pepino e cenoura;140;tofu grelhado com legumes salteados;190
+Quinta;21.11.2024;peixe assado com batatas e legumes;230;almôndegas com puré de batata;290;quinoa com legumes grelhados;150;hambúrguer de grão-de-bico com batata-doce assada;200
+Sexta;22.11.2024;peixe grelhado com arroz de legumes;180;bife de vaca grelhado com arroz;330;frango grelhado com salada mista;150;lasanha de vegetais;200
+
